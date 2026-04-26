@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
 COPY libsane_1.0.19-1_i386.deb /
 RUN dpkg --force-overwrite -i /libsane_1.0.19-1_i386.deb; apt-get install -yf; dpkg --force-all --configure -a; true
 
-# The custom libsane only ships mustek_usb2; tell it about the A3 USB 1200 PRO (055f:040b)
+# The custom libsane only ships mustek_usb2; tell it about the A3 USB 600 PRO (055f:040b)
 RUN echo 'usb 0x055f 0x040b' > /etc/sane.d/mustek_usb2.conf
 
 # Restrict saned to localhost-only connections (container runs with --network=host)
@@ -37,6 +37,6 @@ EXPOSE 6566
 # to handle the version-mismatch hang between saned 1.0.3 and modern net clients.
 # close_fds=True: prevent saned from inheriting the listening socket (fd 3),
 # which would cause it to call accept() in standalone mode instead of inetd mode.
-RUN printf 'import socket,subprocess,threading\ns=socket.socket()\ns.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)\ns.bind(("0.0.0.0",6566))\ns.listen(1)\nwhile True:\n c,a=s.accept()\n p=subprocess.Popen(["/usr/sbin/saned"],stdin=c,stdout=c,stderr=open("/dev/null","w"),close_fds=True)\n t=threading.Thread(target=p.wait)\n t.daemon=True\n t.start()\n t.join(120)\n if t.is_alive():\n  p.terminate()\n  t.join(5)\n  if t.is_alive():p.kill()\n c.close()\n' > /saned-inetd.py
+RUN printf 'import socket,subprocess,threading\ns=socket.socket()\ns.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)\ns.bind(("127.0.0.1",6566))\ns.listen(1)\nwhile True:\n c,a=s.accept()\n p=subprocess.Popen(["/usr/sbin/saned"],stdin=c,stdout=c,stderr=open("/dev/null","w"),close_fds=True)\n t=threading.Thread(target=p.wait)\n t.daemon=True\n t.start()\n t.join(120)\n if t.is_alive():\n  p.terminate()\n  t.join(5)\n  if t.is_alive():p.kill()\n c.close()\n' > /saned-inetd.py
 
 CMD ["python", "/saned-inetd.py"]
