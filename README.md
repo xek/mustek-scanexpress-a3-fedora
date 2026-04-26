@@ -1,4 +1,4 @@
-# Mustek ScanExpress A3 USB 1200 PRO on Fedora
+# Mustek ScanExpress A3 USB 600 PRO on Fedora
 
 The scanner (USB ID `055f:040b`) is not supported by any current SANE backend on Fedora.
 This setup runs the old SANE 1.0.19 driver (`mustek_usb2`) inside an Ubuntu 9.04 Jaunty i386
@@ -13,7 +13,7 @@ Tested on Fedora 43.
 ## Files
 
 - `Dockerfile.saned` — the container image
-- `libsane_1.0.19-1_i386.deb` — custom-built libsane with the A3 USB 1200 PRO driver
+- `libsane_1.0.19-1_i386.deb` — custom-built libsane with the A3 USB 600 PRO driver
 
 ## One-time host setup (requires root)
 
@@ -59,7 +59,7 @@ Create a systemd user service so the container starts automatically:
 mkdir -p ~/.config/systemd/user
 cat > ~/.config/systemd/user/mustek-scanner.service << 'EOF'
 [Unit]
-Description=Mustek ScanExpress A3 USB 1200 PRO SANE container
+Description=Mustek ScanExpress A3 USB 600 PRO SANE container
 After=default.target
 
 [Service]
@@ -119,5 +119,5 @@ podman rm -f scanner
   scans fail silently.
 - The `A3IIIU2 Spicall:` debug messages from the scanner firmware go to stderr, which is
   redirected to `/dev/null`, so they never appear in scan output.
-- The `mustek_usb2` backend detects the scanner as "ScanExpress A3 USB 600 Pro" — this is
-  normal; the driver supports both the 600 and 1200 DPI variants under the same name.
+- `lsusb` misidentifies this scanner as "ScanExpress A3 USB 1200 PRO" — the actual model
+  per the sticker is the 600 PRO, and the SANE driver correctly caps resolution at 600 DPI.
