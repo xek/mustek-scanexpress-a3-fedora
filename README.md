@@ -35,7 +35,7 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger --attr-match=idVendor=055f --attr-match=idProduct=040b
 ```
 
-Verify: `ls -la /dev/mustek-a3` should exist and show your group as owner.
+Verify: `ls -la /dev/mustek-a3` should exist, and `ls -la $(readlink -f /dev/mustek-a3)` should show your group as owner.
 
 ### 3. Configure the SANE net backend on the host
 
